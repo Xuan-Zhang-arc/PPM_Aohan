@@ -7,7 +7,7 @@ A comparative analyses of stone- and earth-wall settlement locations of the Lowe
 4) executing the script and the GIS layers under different folders successfully;
 
 2. The R script contains the following parts:
-  1. Prepare the packages and file paths
+  "1. Prepare the packages and file paths
   2. Read the objects and convert them to spatstat format
   3. Function form selection: LM or GAM
   4. Relative Variable Importance
@@ -15,4 +15,4 @@ A comparative analyses of stone- and earth-wall settlement locations of the Lowe
   6. second-order interaction
     6.1 stone-wall sites
     6.2 interaction between types
-  7. site size and model
+  7. site size and model"
