@@ -5,7 +5,7 @@
 ## corresponding authors: corresponding author at School of Architecture, Tianjin University, China. E-mail address: 961295@tju.edu.cn (Yukun Zhang); corresponding author at McDonald Institute for Archaeological Research, Department of Archaeology,  University of Cambridge, UK. E-mail address: erc62@cam.ac.uk (Enrico R. Crema).
 
 
-# 0. Prepare the packages
+# 0. Prepare the packages and file paths
 install.packages("usethis")
 library(usethis)
 usethis::create_project(".")
@@ -29,6 +29,7 @@ library(terra)
 library(sp)
 library(MuMIn)
 library(MASS)
+
 # 1. Read the objects and convert them to spatstat format ----
 # The observed window
 Aohan <-read_sf(here("GIS_layers","1_1_Aohan_qgisproj.shp"))
@@ -64,14 +65,12 @@ plot(TypeA_ppp$window, main=NULL)
 plot(rejects, col='red',add=TRUE)
 dev.off()
 # From the plot() results, it can be seen that the five rejected points are located on the edge of the observed window, or rather, on the Aohanqi administrative boundary. Since these five points constitute less than 1% of all the 502 stone-wall sites, we used Type_A_ppp for subsequent analysis. 
-
 # Earth-wall sites
 earth_wall <- read.csv(here("Data", "1_xiaxia_earth_wall.csv"))
 earth.sf <- st_as_sf(earth_wall, coords = c("Longitude", "Latitude"), crs = 4326)
 earth.sf <- st_transform(earth.sf, crs = crs_obj)
 earth.xy <- st_coordinates(earth.sf)
 TypeB_ppp <- ppp(x=earth.xy[,1],y=earth.xy[,2], window=Aohan_owin)
-
 # Stone- and earth-wall sites
 AB.multitype<-superimpose(stonewall=TypeA_ppp,earthwall=TypeB_ppp)
 
@@ -125,7 +124,6 @@ jpeg(here("Output", "1_covariates", "1_4_vis_in.jpg"),width = 7, height = 7, uni
 plot(vis_in_im, main = NULL)
 dev.off()
 
-
 # 1.5 outgoing visbility index
 visibility_out<-mask(raster(here("GIS_layers","1_5_out_vis_index_qgisproj.tif"),window=Aohan_owin), Aohan)
 res(visibility_out)
@@ -138,9 +136,6 @@ class(vis_out_im$v)
 jpeg(here("Output", "1_covariates", "1_5_vis_out.jpg"),width = 7, height = 7, units = "in", res = 1200)
 plot(vis_out_im, main = NULL)
 dev.off()
-
-
-
 
 # 1.6 landforms
 landforms <- mask(raster(here("GIS_layers","1_6_landforms_qgisproj_reclass.tif")), Aohan)
@@ -228,7 +223,6 @@ jpeg(here("Output", "1_covariates", "1_9_geo_earth.jpg"),width = 7, height = 7, 
 plot(geo_earth_im, main = NULL)
 dev.off()
 
-
 # 1.10 modern precipitation
 precipitation <- mask(raster(here("GIS_layers","1_10_precipitation_clipped_qgisproj.tif")), Aohan)
 precipitation_resample <- resample(precipitation, DEM, method='bilinear')
@@ -255,8 +249,7 @@ jpeg(here("Output", "1_covariates", "1_11_temperature.jpg"),width = 7, height = 
 plot(temperature_im, main = NULL)
 dev.off()
 
-
-# 3.Function form selection: LM or GAM
+# 3. Function form selection: LM or GAM
 # 3.1 stone-wall sites
 # 1) elevation: GAM 
 ppm_A_elevation<-ppm(TypeA_ppp~elevation_im)
@@ -273,7 +266,6 @@ AICc(ppm_A_slope)
 gam_A_slope<-ppm(TypeA_ppp~s(slope_im),use.gam=TRUE)
 AICc(gam_A_slope)
 # [1] 17347.26
-
 
 # 3) aspect: LM 
 ppm_A_aspect<-ppm(TypeA_ppp~aspect_im)
@@ -304,7 +296,6 @@ ppm_A_landforms<-ppm(TypeA_ppp~landforms_recla_im)
 AICc(ppm_A_landforms)
 # [1] 17415.43
 
-
 # 7) river: GAM 
 ppm_A_river<-ppm(TypeA_ppp~river_im)
 AICc(ppm_A_river)
@@ -313,12 +304,10 @@ gam_A_river<-ppm(TypeA_ppp~s(river_im),use.gam=TRUE)
 AICc(gam_A_river)
 # [1] 17493.21
 
-
 # 8) soil: LM
 ppm_A_soil<-ppm(TypeA_ppp~soil_recla_im)
 AICc(ppm_A_soil)
 # [1] 17310.82
-
 
 # 9) geology
 # building rock: LM
@@ -329,31 +318,22 @@ gam_A_geo_rock <- ppm(TypeA_ppp~s(geo_rock_im), use.gam=TRUE)
 AICc(gam_A_geo_rock)
 # [1] 17202.86
 
-
 # 10) modern annual precipitation: GAM 
 ppm_A_precipitation<-ppm(TypeA_ppp~precipitation_im)
 AICc(ppm_A_precipitation)
 # [1] 17026.54
 
-
 gam_A_precipitation<-ppm(TypeA_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gam_A_precipitation)
 # [1] 16938.72
-
-
-
 
 # 11) modern annual mean temperature: GAM 
 ppm_A_temperature<-ppm(TypeA_ppp~temperature_im)
 AICc(ppm_A_temperature)
 # [1] 17227.72
-
-
 gam_A_temperature<-ppm(TypeA_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gam_A_temperature)
 # [1] 17024.94
-
-
 
 # 3.2 earth-wall sites
 # 1) elevation: LM 
@@ -371,8 +351,6 @@ AICc(ppm_B_slope)
 gam_B_slope<-ppm(TypeB_ppp~s(slope_im),use.gam=TRUE)
 AICc(gam_B_slope)
 # [1] 2653.439
-
-
 
 # 3) aspect: LM 
 ppm_B_aspect<-ppm(TypeB_ppp~aspect_im)
@@ -403,7 +381,6 @@ ppm_B_landforms<-ppm(TypeB_ppp~landforms_recla_im)
 AICc(ppm_B_landforms)
 # [1] 2626.582
 
-
 # 7) river: LM 
 ppm_B_river<-ppm(TypeB_ppp~river_im)
 AICc(ppm_B_river)
@@ -411,7 +388,6 @@ AICc(ppm_B_river)
 gam_B_river<-ppm(TypeB_ppp~s(river_im),use.gam=TRUE)
 AICc(gam_B_river)
 # [1] 2644.661
-
 
 # 8) soil: LM
 ppm_B_soil<-ppm(TypeB_ppp~soil_recla_im)
@@ -423,43 +399,28 @@ AICc(ppm_B_soil)
 ppm_B_geo_earth <- ppm(TypeB_ppp~geo_earth_im)
 AICc(ppm_B_geo_earth)
 # [1] 2632.412
-
-
 gam_B_geo_earth <- ppm(TypeB_ppp~s(geo_earth_im), use.gam=TRUE)
 AICc(gam_B_geo_earth)
 # [1] 2652.153
-
 
 # 10) modern annual precipitation: LM 
 ppm_B_precipitation<-ppm(TypeB_ppp~precipitation_im)
 AICc(ppm_B_precipitation)
 # [1] 2581.457
-
-
 gam_B_precipitation<-ppm(TypeB_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gam_B_precipitation)
 # [1] 2601.198
-
-
-
 
 # 11) modern annual mean temperature: LM 
 ppm_B_temperature<-ppm(TypeB_ppp~temperature_im)
 AICc(ppm_B_temperature)
 # [1] 2627.685
-
-
 gam_B_temperature<-ppm(TypeB_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gam_B_temperature)
 # [1] 2647.426
 
 
-
-
-
-
-
-# 4.Relative Variable Importance  
+# 4. Relative Variable Importance  
 # 4.1 stone-wall sites
 global.model.A<-ppm(TypeA_ppp~s(elevation_im)+s(slope_im)+aspect_im+s(vis_in_im)+s(vis_out_im)+landforms_recla_im+s(river_im)+soil_recla_im+geo_rock_im+s(precipitation_im)+s(temperature_im), use.gam=TRUE)
 all.model.A <- dredge(global.model.A,evaluate=FALSE)
@@ -512,8 +473,6 @@ elevation.results=subset(param.comb.A, param.comb.A[,4]==1)
 sum(elevation.results$weights) # 1
 nrow(elevation.results)
 
-
-
 # 4.2 earth-wall sites
 global.model.B<-ppm(TypeB_ppp~elevation_im+slope_im+aspect_im+vis_in_im+vis_out_im+landforms_recla_im+river_im+soil_recla_im+geo_earth_im+precipitation_im+temperature_im, use.gam=TRUE)
 all.model.B <- dredge(global.model.B,evaluate=FALSE)
@@ -536,7 +495,6 @@ raw_weights <- Weights(candidates.aic.B)
 normalized_weights <- raw_weights / sum(raw_weights)
 rounded_weights <- round(normalized_weights, 4)
 param.comb.B$weights <- rounded_weights / sum(rounded_weights)
-
 
 param.importance.B <- data.frame(params.B=params.B, aic.imp=NA)
 
@@ -599,7 +557,6 @@ global.model.A.Kres.env <-envelope(global.model.A,fun=Kres,nsim=50,correction='b
 jpeg(here("Output", "2_first_order_interactions", "global_model_A_Kres.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(global.model.A.Kres.env,main=NULL)
 dev.off()
-
 
 # code for Figure 7
 jpeg(here("Output", "2_first_order_interactions", "effectfun_A_geo_rock.jpg"),width = 7, height = 7, units = "in", res = 1000)
@@ -681,9 +638,6 @@ jpeg(here("Output", "2_first_order_interactions", "global_model_B_Kres.jpg"),wid
 plot(global.model.B.Kres.env,main=NULL)
 dev.off()
 
-
-
-
 # code for Figure 7
 jpeg(here("Output", "2_first_order_interactions", "effectfun_B_precipitation.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.B,covname='precipitation_im',geo_earth_im=mean(geo_earth_im),slope_im=mean(slope_im),soil_recla_im=as.factor(c("absence", "presence")), se.fit=TRUE),main=NULL)
@@ -703,7 +657,7 @@ barplot(eff_soil$lambda,names.arg=eff_soil$soil_recla_im,main=NULL)
 dev.off()
 
 
-# 6.second-order interaction
+# 6. second-order interaction
 # 6.1 stone-wall sites
 distance_A_mean <- mean(st_distance(stone.sf))
 distance_A_mean
@@ -720,7 +674,7 @@ print(distance_A)
 # irregular parameter: r in [50, 10000]
 # optimum value of irregular parameter:  r = 850
 jpeg(here("Output", "4_second_order_interactions", "Gibbs_A_distance.jpg"), width = 7, height = 7, units = "in", res = 1000)
-plot(distance_A)
+plot(distance_A, main=Null)
 dev.off()
 
 Gibbs_A <- as.ppm(distance_A)
@@ -752,7 +706,6 @@ jpeg(here("Output", "4_second_order_interactions", "effectfun_Gibbs_A_precipitat
 plot(effectfun(Gibbs_A,covname='precipitation_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), river_im  =mean(river_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
 dev.off()
 
-
 jpeg(here("Output", "4_second_order_interactions", "effectfun_Gibbs_A_river.jpg"), width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(Gibbs_A,covname='river_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), precipitation_im =mean(precipitation_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
 dev.off()
@@ -760,9 +713,6 @@ dev.off()
 jpeg(here("Output", "4_second_order_interactions", "effectfun_Gibbs_A_vis_out.jpg"), width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(Gibbs_A,covname='vis_out_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), precipitation_im =mean(precipitation_im), river_im=mean(river_im),se.fit=TRUE),main=NULL)
 dev.off()
-
-
-
 
 
 # 6.2 interaction between types
@@ -778,7 +728,6 @@ AICc(ppmAB_elevation)
 gamAB_elevation<-ppm(AB.multitype~s(elevation_im),use.gam=TRUE)
 AICc(gamAB_elevation)
 # [1] 19945
-
 
 # 2) slope: GAM   
 ppmAB_slope<-ppm(AB.multitype~slope_im)
@@ -817,7 +766,6 @@ ppmAB_landforms<-ppm(AB.multitype~landforms_recla_im)
 AICc(ppmAB_landforms)
 # [1] 20411.72
 
-
 # 7) river: GAM   
 ppmAB_river<-ppm(AB.multitype~river_im)
 AICc(ppmAB_river)
@@ -826,12 +774,10 @@ gamAB_river<-ppm(AB.multitype~s(river_im),use.gam=TRUE)
 AICc(gamAB_river)
 # [1] 20487.04
 
-
 # 8) soil:  LM 
 ppmAB_soil<-ppm(AB.multitype~soil_recla_im)
 AICc(ppmAB_soil)
 #[1] 20261.6 
-
 
 # 9) geology
 # building earth: LM   
@@ -842,7 +788,6 @@ gamAB_geo_rock <- ppm(AB.multitype~s(geo_rock_im), use.gam=TRUE)
 AICc(gamAB_geo_rock)
 # [1] 20168.96
 
-
 # building earth: LM   
 ppmAB_geo_earth <- ppm(AB.multitype~geo_earth_im)
 AICc(ppmAB_geo_earth)
@@ -851,32 +796,21 @@ gamAB_geo_earth <- ppm(AB.multitype~s(geo_earth_im), use.gam=TRUE)
 AICc(gamAB_geo_earth)
 # [1] 20496.68
 
-
 # 10) modern annual precipitation: LM
 ppmAB_precipitation<-ppm(AB.multitype~precipitation_im)
 AICc(ppmAB_precipitation)
 # [1] 19975.48
-
-
 gamAB_precipitation<-ppm(AB.multitype~s(precipitation_im),use.gam=TRUE)
 AICc(gamAB_precipitation)
 # [1] 19991.86
-
-
-
 
 # 11) modern annual mean temperature: GAM    
 ppmAB_temperature<-ppm(AB.multitype~temperature_im)
 AICc(ppmAB_temperature)
 # [1] 20231.48
-
-
 gamAB_temperature<-ppm(AB.multitype~s(temperature_im),use.gam=TRUE)
 AICc(gamAB_temperature)
 #[1] 20007.1
-
-
-
 
 # 6.2.2 relative variable importance
 global.model.AB<-ppm(AB.multitype~s(elevation_im)+s(slope_im)+aspect_im+s(vis_in_im)+s(vis_out_im)+landforms_recla_im+s(river_im)+soil_recla_im+geo_rock_im+geo_earth_im+precipitation_im+s(temperature_im), use.gam=TRUE)
@@ -900,7 +834,6 @@ normalized_weights <- raw_weights / sum(raw_weights)
 rounded_weights <- round(normalized_weights, 4)
 param.comb.AB$weights <- rounded_weights / sum(rounded_weights)
 
-
 param.importance.AB <- data.frame(params.AB=params.AB, aic.imp=NA)
 
 for (i in 1:length(params.AB)) {
@@ -920,8 +853,6 @@ param.importance.AB
 # 10       s(vis_in_im) 0.41202361
 # 11      s(vis_out_im) 0.97799340
 # 12      soil_recla_im 1.00000000
-
-
 
 # 6.2.3 models and goodness of fit
 model.AB <- ppm(AB.multitype~precipitation_im+s(elevation_im)+s(river_im)+s(vis_out_im)+soil_recla_im, use.gam=TRUE) 
@@ -945,8 +876,7 @@ plot(AB.pm)
 as.ppm(AB.pm)
 
 
-
-# 7.site size and model
+# 7. site size and model
 # 7.1 divide the sites based on size
 # Stone-wall sites
 stone_wall_filtered <- subset(stone_wall, Area != 0)
@@ -992,13 +922,11 @@ B_large.xy <- st_coordinates(B_large.sf)
 B_large_ppp <- ppp(x=B_large.xy[,1],y=B_large.xy[,2], window=Aohan_owin)
 plot(B_large_ppp)
 
-
 B_middle.sf <- st_as_sf(B_middle, coords = c("Longitude", "Latitude"), crs = 4326)
 B_middle.sf <- st_transform(B_middle.sf, crs = crs_obj)
 B_middle.xy <- st_coordinates(B_middle.sf)
 B_middle_ppp <- ppp(x=B_middle.xy[,1],y=B_middle.xy[,2], window=Aohan_owin)
 plot(B_middle_ppp)
-
 
 B_small.sf <- st_as_sf(B_small, coords = c("Longitude", "Latitude"), crs = 4326)
 B_small.sf <- st_transform(B_small.sf, crs = crs_obj)
@@ -1006,7 +934,7 @@ B_small.xy <- st_coordinates(B_small.sf)
 B_small_ppp <- ppp(x=B_small.xy[,1],y=B_small.xy[,2], window=Aohan_owin)
 plot(B_small_ppp)
 
-# 7.2 test the model performance using the selected covariates above through relative variable improtance analysis
+# 7.2 test the model performance using the selected covariates above through relative variable improtance analysis as suggested by reviewer 1
 # 7.2.1 stone-wall sites
 # 1) large
 model.A_large<-ppm(A_large_ppp~geo_rock_im+s(elevation_im) +s(precipitation_im) +s(river_im) +s(vis_out_im),use.gam=TRUE)
@@ -1030,7 +958,6 @@ dev.off()
 jpeg(here("Output", "3_size_categories", "effectfun_A_large_precipitation.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.A_large,covname='precipitation_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), river_im  =mean(river_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
 dev.off()
-
 
 jpeg(here("Output", "3_size_categories", "effectfun_A_large_river.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.A_large,covname='river_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), precipitation_im =mean(precipitation_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
@@ -1063,7 +990,6 @@ jpeg(here("Output", "3_size_categories", "effectfun_A_middle_precipitation.jpg")
 plot(effectfun(model.A_middle,covname='precipitation_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), river_im  =mean(river_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
 dev.off()
 
-
 jpeg(here("Output", "3_size_categories", "effectfun_A_middle_river.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.A_middle,covname='river_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), precipitation_im =mean(precipitation_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
 dev.off()
@@ -1071,10 +997,6 @@ dev.off()
 jpeg(here("Output", "3_size_categories", "effectfun_A_middle_vis_out.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.A_middle,covname='vis_out_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), precipitation_im =mean(precipitation_im), river_im=mean(river_im),se.fit=TRUE),main=NULL)
 dev.off()
-
-
-
-
 
 
 # 3) small
@@ -1100,7 +1022,6 @@ jpeg(here("Output", "3_size_categories", "effectfun_A_small_precipitation.jpg"),
 plot(effectfun(model.A_small,covname='precipitation_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), river_im  =mean(river_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
 dev.off()
 
-
 jpeg(here("Output", "3_size_categories", "effectfun_A_small_river.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.A_small,covname='river_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), precipitation_im =mean(precipitation_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
 dev.off()
@@ -1108,7 +1029,6 @@ dev.off()
 jpeg(here("Output", "3_size_categories", "effectfun_A_small_vis_out.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.A_small,covname='vis_out_im',geo_rock_im=mean(geo_rock_im),elevation_im = mean(elevation_im), precipitation_im =mean(precipitation_im), river_im=mean(river_im),se.fit=TRUE),main=NULL)
 dev.off()
-
 
 # 7.2.2 earth-wall sites
 # 1) large
@@ -1139,8 +1059,6 @@ eff_soil <- effectfun(model.B_large,covname='soil_recla_im',geo_earth_im=mean(ge
 barplot(eff_soil$lambda,names.arg=eff_soil$soil_recla_im,main=NULL)
 dev.off()
 
-
-
 # 2) middle
 model.B_middle<-ppm(B_middle_ppp~geo_earth_im + precipitation_im+ slope_im+ soil_recla_im,use.gam=TRUE)
 pseudoR2(model.B_middle)
@@ -1168,7 +1086,6 @@ jpeg(here("Output", "3_size_categories", "effectfun_B_middle_soil.jpg"),width = 
 eff_soil <- effectfun(model.B_middle,covname='soil_recla_im',geo_earth_im=mean(geo_earth_im),slope_im=mean(slope_im),precipitation_im=mean(precipitation_im), se.fit=TRUE)
 barplot(eff_soil$lambda,names.arg=eff_soil$soil_recla_im,main=NULL)
 dev.off()
-
 
 # 3) small
 model.B_small<-ppm(B_small_ppp~geo_earth_im + precipitation_im+ slope_im+ soil_recla_im,use.gam=TRUE)
@@ -1199,7 +1116,6 @@ barplot(eff_soil$lambda,names.arg=eff_soil$soil_recla_im,main=NULL)
 dev.off()
 
 
-
 # The following code will be rerunning the whole workflow to compare among different size categories as suggested by reviewer 2.
 # 7.3 function form
 # 7.3.1 stone-wall sites
@@ -1219,7 +1135,6 @@ AICc(ppmA_large_slope)
 gamA_large_slope<-ppm(A_large_ppp~s(slope_im),use.gam=TRUE)
 AICc(gamA_large_slope)
 # [1] 5913.509
-
 
 # 3) aspect: LM  
 ppmA_large_aspect<-ppm(A_large_ppp~aspect_im)
@@ -1250,7 +1165,6 @@ ppmA_large_landforms<-ppm(A_large_ppp~landforms_recla_im)
 AICc(ppmA_large_landforms)
 # [1] 5897.547
 
-
 # 7) river: LM  
 ppmA_large_river<-ppm(A_large_ppp~river_im)
 AICc(ppmA_large_river)
@@ -1259,12 +1173,10 @@ gamA_large_river<-ppm(A_large_ppp~s(river_im),use.gam=TRUE)
 AICc(gamA_large_river)
 # [1] 5945.167
 
-
 # 8) soil: LM 
 ppmA_large_soil<-ppm(A_large_ppp~soil_recla_im)
 AICc(ppmA_large_soil)
 # [1] 5870.646
-
 
 # 9) geology
 # building rock:  LM
@@ -1275,32 +1187,21 @@ gamA_large_geo_rock <- ppm(A_large_ppp~s(geo_rock_im), use.gam=TRUE)
 AICc(gamA_large_geo_rock)
 # [1] 5847.933
 
-
-
 # 10) modern annual precipitation: LM  
 ppmA_large_precipitation<-ppm(A_large_ppp~precipitation_im)
 AICc(ppmA_large_precipitation)
 # [1] 5840.826
-
-
 gamA_large_precipitation<-ppm(A_large_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gamA_large_precipitation)
 # [1] 5858.246
-
-
-
 
 # 11) modern annual mean temperature: GAM  
 ppmA_large_temperature<-ppm(A_large_ppp~temperature_im)
 AICc(ppmA_large_temperature)
 #[1] 5884.647 
-
-
 gamA_large_temperature<-ppm(A_large_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gamA_large_temperature)
 #[1] 5828.167 
-
-
 
 # 7.3.1.2 middle
 # 1) elevation: GAM
@@ -1318,7 +1219,6 @@ AICc(ppmA_middle_slope)
 gamA_middle_slope<-ppm(A_middle_ppp~s(slope_im),use.gam=TRUE)
 AICc(gamA_middle_slope)
 # [1] 5889.973
-
 
 # 3) aspect: LM  
 ppmA_middle_aspect<-ppm(A_middle_ppp~aspect_im)
@@ -1349,7 +1249,6 @@ ppmA_middle_landforms<-ppm(A_middle_ppp~landforms_recla_im)
 AICc(ppmA_middle_landforms)
 #[1] 5919.562 
 
-
 # 7) river: LM  
 ppmA_middle_river<-ppm(A_middle_ppp~river_im)
 AICc(ppmA_middle_river)
@@ -1358,12 +1257,10 @@ gamA_middle_river<-ppm(A_middle_ppp~s(river_im),use.gam=TRUE)
 AICc(gamA_middle_river)
 # [1] 5942.639
 
-
 # 8) soil:  LM
 ppmA_middle_soil<-ppm(A_middle_ppp~soil_recla_im)
 AICc(ppmA_middle_soil)
 # [1] 5856.275
-
 
 # 9) geology
 # building rock:  LM
@@ -1374,31 +1271,21 @@ gamA_large_geo_rock <- ppm(A_large_ppp~s(geo_rock_im), use.gam=TRUE)
 AICc(gamA_large_geo_rock)
 # [1] 5847.933
 
-
 # 10) modern annual precipitation:  GAM 
 ppmA_middle_precipitation<-ppm(A_middle_ppp~precipitation_im)
 AICc(ppmA_middle_precipitation)
 # [1] 5690.922
-
-
 gamA_middle_precipitation<-ppm(A_middle_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gamA_middle_precipitation)
 # [1] 5666.542
-
-
-
 
 # 11) modern annual mean temperature:  GAM  
 ppmA_middle_temperature<-ppm(A_middle_ppp~temperature_im)
 AICc(ppmA_middle_temperature)
 # [1] 5803.593
-
-
-
 gamA_middle_temperature<-ppm(A_middle_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gamA_middle_temperature)
 #[1] 5757.494
-
 
 # 7.3.1.3 small
 # 1) elevation:  GAM
@@ -1416,7 +1303,6 @@ AICc(ppmA_small_slope)
 gamA_small_slope<-ppm(A_small_ppp~s(slope_im),use.gam=TRUE)
 AICc(gamA_small_slope)
 # [1] 5917.161
-
 
 # 3) aspect: LM  
 ppmA_small_aspect<-ppm(A_small_ppp~aspect_im)
@@ -1447,7 +1333,6 @@ ppmA_small_landforms<-ppm(A_small_ppp~landforms_recla_im)
 AICc(ppmA_small_landforms)
 # [1] 5933.57
 
-
 # 7) river:  GAM 
 ppmA_small_river<-ppm(A_small_ppp~river_im)
 AICc(ppmA_small_river)
@@ -1456,12 +1341,10 @@ gamA_small_river<-ppm(A_small_ppp~s(river_im),use.gam=TRUE)
 AICc(gamA_small_river)
 # [1] 5952.314
 
-
 # 8) soil: LM 
 ppmA_small_soil<-ppm(A_small_ppp~soil_recla_im)
 AICc(ppmA_small_soil)
 # [1] 5898.741
-
 
 # 9) geology
 # building rock: LM 
@@ -1472,33 +1355,22 @@ gamA_small_geo_rock <- ppm(A_small_ppp~s(geo_rock_im), use.gam=TRUE)
 AICc(gamA_small_geo_rock)
 # [1] 5890.444
 
-
-
 # 10) modern annual precipitation: LM  
 ppmA_small_precipitation<-ppm(A_small_ppp~precipitation_im)
 AICc(ppmA_small_precipitation)
 # [1] 5791.129
-
-
 gamA_small_precipitation<-ppm(A_small_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gamA_small_precipitation)
 # [1] 5808.539
-
-
-
 
 # 11) modern annual mean temperature: GAM  
 ppmA_small_temperature<-ppm(A_small_ppp~temperature_im)
 AICc(ppmA_small_temperature)
 # [1] 5848.052
 
-
 gamA_small_temperature<-ppm(A_small_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gamA_small_temperature)
 #[1] 5801.619
-
-
-
 
 # 7.3.2 earth-wall sites
 # 7.3.2.1 large
@@ -1517,7 +1389,6 @@ AICc(ppmB_large_slope)
 gamB_large_slope<-ppm(B_large_ppp~s(slope_im),use.gam=TRUE)
 AICc(gamB_large_slope)
 # [1] 952.4923
-
 
 # 3) aspect:  LM 
 ppmB_large_aspect<-ppm(B_large_ppp~aspect_im)
@@ -1548,7 +1419,6 @@ ppmB_large_landforms<-ppm(B_large_ppp~landforms_recla_im)
 AICc(ppmB_large_landforms)
 # [1] 921.4442
 
-
 # 7) river:  LM 
 ppmB_large_river<-ppm(B_large_ppp~river_im)
 AICc(ppmB_large_river)
@@ -1557,50 +1427,35 @@ gamB_large_river<-ppm(B_large_ppp~s(river_im),use.gam=TRUE)
 AICc(gamB_large_river)
 # [1] 951.7536
 
-
 # 8) soil:  LM
 ppmB_large_soil<-ppm(B_large_ppp~soil_recla_im)
 AICc(ppmB_large_soil)
 # [1] 874.5221
-
 
 # 9) geology
 # building earth:  LM
 ppmB_large_geo_earth <- ppm(B_large_ppp~geo_earth_im)
 AICc(ppmB_large_geo_earth)
 # [1] 916.5294
-
-
 gamB_large_geo_earth <- ppm(B_large_ppp~s(geo_earth_im), use.gam=TRUE)
 AICc(gamB_large_geo_earth)
 # [1] 951.8978
-
 
 # 10) modern annual precipitation:  LM  
 ppmB_large_precipitation<-ppm(B_large_ppp~precipitation_im)
 AICc(ppmB_large_precipitation)
 # [1] 905.3853
-
-
 gamB_large_precipitation<-ppm(B_large_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gamB_large_precipitation)
 # [1] 940.7537
-
-
-
 
 # 11) modern annual mean temperature: LM  
 ppmB_large_temperature<-ppm(B_large_ppp~temperature_im)
 AICc(ppmB_large_temperature)
 # [1] 916.8718
-
-
 gamB_large_temperature<-ppm(B_large_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gamB_large_temperature)
 # [1] 952.2402
-
-
-
 
 # 7.3.2.2 middle
 # 1) elevation: LM
@@ -1618,7 +1473,6 @@ AICc(ppmB_middle_slope)
 gamB_middle_slope<-ppm(B_middle_ppp~s(slope_im),use.gam=TRUE)
 AICc(gamB_middle_slope)
 # [1] 952.2405
-
 
 # 3) aspect:  LM 
 ppmB_middle_aspect<-ppm(B_middle_ppp~aspect_im)
@@ -1649,7 +1503,6 @@ ppmB_middle_landforms<-ppm(B_middle_ppp~landforms_recla_im)
 AICc(ppmB_middle_landforms)
 # [1] 914.434
 
-
 # 7) river:  LM 
 ppmB_middle_river<-ppm(B_middle_ppp~river_im)
 AICc(ppmB_middle_river)
@@ -1658,48 +1511,35 @@ gamB_middle_river<-ppm(B_middle_ppp~s(river_im),use.gam=TRUE)
 AICc(gamB_middle_river)
 # [1] 951.8923
 
-
 # 8) soil: LM 
 ppmB_middle_soil<-ppm(B_middle_ppp~soil_recla_im)
 AICc(ppmB_middle_soil)
 # [1] 910.7425
-
 
 # 9) geology
 # building earth: LM 
 ppmB_middle_geo_earth <- ppm(B_middle_ppp~geo_earth_im)
 AICc(ppmB_middle_geo_earth)
 # [1] 915.5148
-
-
 gamB_middle_geo_earth <- ppm(B_middle_ppp~s(geo_earth_im), use.gam=TRUE)
 AICc(gamB_middle_geo_earth)
 # [1] 950.8832
-
 
 # 10) modern annual precipitation: LM  
 ppmB_middle_precipitation<-ppm(B_middle_ppp~precipitation_im)
 AICc(ppmB_middle_precipitation)
 # [1] 898.5571
-
-
 gamB_middle_precipitation<-ppm(B_middle_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gamB_middle_precipitation)
 # [1] 933.9255
-
-
-
 
 # 11) modern annual mean temperature: LM  
 ppmB_middle_temperature<-ppm(B_middle_ppp~temperature_im)
 AICc(ppmB_middle_temperature)
 # [1] 913.881
-
-
 gamB_middle_temperature<-ppm(B_middle_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gamB_middle_temperature)
 #[1] 949.2494
-
 
 # 7.3.2.3 small
 # 1) elevation: LM
@@ -1717,7 +1557,6 @@ AICc(ppmB_small_slope)
 gamB_small_slope<-ppm(B_small_ppp~s(slope_im),use.gam=TRUE)
 AICc(gamB_small_slope)
 # [1] 951.8144
-
 
 # 3) aspect:  LM 
 ppmB_small_aspect<-ppm(B_small_ppp~aspect_im)
@@ -1748,7 +1587,6 @@ ppmB_small_landforms<-ppm(B_small_ppp~landforms_recla_im)
 AICc(ppmB_small_landforms)
 # [1] 911.9101
 
-
 # 7) river:  LM 
 ppmB_small_river<-ppm(B_small_ppp~river_im)
 AICc(ppmB_small_river)
@@ -1757,50 +1595,35 @@ gamB_small_river<-ppm(B_small_ppp~s(river_im),use.gam=TRUE)
 AICc(gamB_small_river)
 # [1] 941.9597
 
-
 # 8) soil:  LM
 ppmB_small_soil<-ppm(B_small_ppp~soil_recla_im)
 AICc(ppmB_small_soil)
 # [1] 904.8762
-
 
 # 9) geology
 # building earth:  LM 
 ppmB_small_geo_earth <- ppm(B_small_ppp~geo_earth_im)
 AICc(ppmB_small_geo_earth)
 # [1] 916.8589
-
-
 gamB_small_geo_earth <- ppm(B_small_ppp~s(geo_earth_im), use.gam=TRUE)
 AICc(gamB_small_geo_earth)
 # [1] 952.2273
-
 
 # 10) modern annual precipitation: LM  
 ppmB_small_precipitation<-ppm(B_small_ppp~precipitation_im)
 AICc(ppmB_small_precipitation)
 # [1] 897.1254
-
-
 gamB_small_precipitation<-ppm(B_small_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gamB_small_precipitation)
 # [1] 932.4938
-
-
-
 
 # 11) modern annual mean temperature: LM  
 ppmB_small_temperature<-ppm(B_small_ppp~temperature_im)
 AICc(ppmB_small_temperature)
 # [1] 914.3507
-
-
 gamB_small_temperature<-ppm(B_small_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gamB_small_temperature)
 #[1] 949.7191
-
-
-
 
 # 7.4 relative variable importance
 # 7.4.1 stone-wall sites
@@ -1826,7 +1649,6 @@ normalized_weights <- raw_weights / sum(raw_weights)
 rounded_weights <- round(normalized_weights, 4)
 param.comb.A_large$weights <- rounded_weights / sum(rounded_weights)
 
-
 param.importance.A_large <- data.frame(params.A_large=params.A_large, aic.imp=NA)
 
 for (i in 1:length(params.A_large)) {
@@ -1845,6 +1667,7 @@ param.importance.A_large
 # 9        s(vis_in_im) 0.79633524
 # 10      s(vis_out_im) 0.12015620
 # 11      soil_recla_im 0.70681886
+
 # 2) middle
 global.model.A_middle<-ppm(A_middle_ppp~s(elevation_im)+s(slope_im)+aspect_im+s(vis_in_im)+vis_out_im+landforms_recla_im+river_im+soil_recla_im+geo_rock_im+s(precipitation_im)+s(temperature_im), use.gam=TRUE)
 all.model.A_middle <- dredge(global.model.A_middle,evaluate=FALSE)
@@ -1867,7 +1690,6 @@ normalized_weights <- raw_weights / sum(raw_weights)
 rounded_weights <- round(normalized_weights, 4)
 param.comb.A_middle$weights <- rounded_weights / sum(rounded_weights)
 
-
 param.importance.A_middle <- data.frame(params.A_middle=params.A_middle, aic.imp=NA)
 
 for (i in 1:length(params.A_middle)) {
@@ -1886,7 +1708,6 @@ param.importance.A_middle
 # 9         s(vis_in_im) 0.0000000000
 # 10       soil_recla_im 0.1033309993
 # 11          vis_out_im 0.9981994598
-# 
 
 # 3) small
 global.model.A_small<-ppm(A_small_ppp~s(elevation_im)+s(slope_im)+aspect_im+s(vis_in_im)+s(vis_out_im)+landforms_recla_im+s(river_im)+soil_recla_im+geo_rock_im+precipitation_im+s(temperature_im), use.gam=TRUE)
@@ -1909,7 +1730,6 @@ raw_weights <- Weights(candidates.aic.A_small)
 normalized_weights <- raw_weights / sum(raw_weights)
 rounded_weights <- round(normalized_weights, 4)
 param.comb.A_small$weights <- rounded_weights / sum(rounded_weights)
-
 
 param.importance.A_small <- data.frame(params.A_small=params.A_small, aic.imp=NA)
 
@@ -1953,7 +1773,6 @@ normalized_weights <- raw_weights / sum(raw_weights)
 rounded_weights <- round(normalized_weights, 4)
 param.comb.B_large$weights <- rounded_weights / sum(rounded_weights)
 
-
 param.importance.B_large <- data.frame(params.B_large=params.B_large, aic.imp=NA)
 
 for (i in 1:length(params.B_large)) {
@@ -1972,10 +1791,6 @@ param.importance.B_large
 # 9      temperature_im 0.181544935
 # 10          vis_in_im 0.200080152
 # 11         vis_out_im 0.243763150
-
-
-
-
 
 # 2) middle
 global.model.B_middle<-ppm(B_middle_ppp~elevation_im+slope_im+aspect_im+vis_in_im+vis_out_im+landforms_recla_im+river_im+soil_recla_im+geo_earth_im+precipitation_im+temperature_im,use.gam=TRUE)
@@ -1999,7 +1814,6 @@ normalized_weights <- raw_weights / sum(raw_weights)
 rounded_weights <- round(normalized_weights, 4)
 param.comb.B_middle$weights <- rounded_weights / sum(rounded_weights)
 
-
 param.importance.B_middle <- data.frame(params.B_middle=params.B_middle, aic.imp=NA)
 
 for (i in 1:length(params.B_middle)) {
@@ -2018,7 +1832,6 @@ param.importance.B_middle
 # 9      temperature_im 0.14977929
 # 10          vis_in_im 0.54263644
 # 11         vis_out_im 0.36807785
-
 
 # 3) small
 global.model.B_small<-ppm(B_small_ppp~elevation_im+slope_im+aspect_im+vis_in_im+vis_out_im+landforms_recla_im+river_im+soil_recla_im+geo_earth_im+precipitation_im+temperature_im,use.gam=TRUE)
@@ -2042,7 +1855,6 @@ normalized_weights <- raw_weights / sum(raw_weights)
 rounded_weights <- round(normalized_weights, 4)
 param.comb.B_small$weights <- rounded_weights / sum(rounded_weights)
 
-
 param.importance.B_small <- data.frame(params.B_small=params.B_small, aic.imp=NA)
 
 for (i in 1:length(params.B_small)) {
@@ -2061,8 +1873,6 @@ param.importance.B_small
 # 9      temperature_im 0.1632797
 # 10          vis_in_im 0.3988934
 # 11         vis_out_im 0.2529175
-# 
-
 
 # 7.5 final model and goodness of fit
 # 7.5.1 stone-wall sites
@@ -2090,7 +1900,6 @@ jpeg(here("Output", "3_size_categories", "effectfun_A2_large_precipitation.jpg")
 plot(effectfun(model.A2_large,covname='precipitation_im',geo_rock_im = mean(geo_rock_im), se.fit=TRUE),main=NULL)
 dev.off()
 
-
 # 2) middle
 model.A2_middle<-ppm(A_middle_ppp~s(elevation_im)+s(precipitation_im)+vis_out_im,use.gam=TRUE)
 pseudoR2(model.A2_middle)
@@ -2106,7 +1915,6 @@ jpeg(here("Output", "3_size_categories", "global_model_A_middle_Kres.jpg"),width
 plot(global.model.A_middle.Kres.env,main=NULL)
 dev.off()
 
-
 # effectfun
 jpeg(here("Output", "3_size_categories", "effectfun_A2_middle_elevation.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.A2_middle,covname='elevation_im',precipitation_im = mean(precipitation_im), vis_out_im=mean(vis_out_im),se.fit=TRUE),main=NULL)
@@ -2119,8 +1927,6 @@ dev.off()
 jpeg(here("Output", "3_size_categories", "effectfun_A2_middle_vis_out.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.A2_middle,covname='vis_out_im',elevation_im=mean(elevation_im),precipitation_im = mean(precipitation_im),se.fit=TRUE),main=NULL)
 dev.off()
-
-
 
 # 3) small
 model.A2_small<-ppm(A_small_ppp~landforms_recla_im+precipitation_im+s(elevation_im)+s(river_im),use.gam=TRUE)
@@ -2205,7 +2011,6 @@ eff=effectfun(
 barplot(eff$lambda,names.arg=eff$landforms_recla_im,main=NULL)
 dev.off()
 
-
 jpeg(here("Output", "3_size_categories", "effectfun_A2_small_precipitation.jpg"),width = 7, height = 7, units = "in", res = 1000)
 eff = effectfun(
   model.A2_small,
@@ -2268,10 +2073,6 @@ eff_soil <- effectfun(model.B2_large,covname='soil_recla_im',precipitation_im=me
 barplot(eff_soil$lambda,names.arg=eff_soil$soil_recla_im,main=NULL)
 dev.off()
 
-
-
-
-
 # 2) middle
 model.B2_middle<-ppm(B_middle_ppp~precipitation_im,use.gam=TRUE)
 pseudoR2(model.B2_middle)
@@ -2292,7 +2093,6 @@ jpeg(here("Output", "3_size_categories", "effectfun_B2_middle_precipitation.jpg"
 plot(effectfun(model.B2_middle,se.fit=TRUE),main=NULL)
 dev.off()
 
-
 # 3) small
 model.B2_small<-ppm(B_small_ppp~precipitation_im,use.gam=TRUE)
 pseudoR2(model.B2_small)
@@ -2312,23 +2112,6 @@ dev.off()
 jpeg(here("Output", "3_size_categories", "effectfun_B2_small_precipitation_im.jpg"),width = 7, height = 7, units = "in", res = 1000)
 plot(effectfun(model.B2_small,se.fit=TRUE),main=NULL)
 dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
