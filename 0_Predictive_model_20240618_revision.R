@@ -5,7 +5,7 @@
 ## corresponding authors: corresponding author at School of Architecture, Tianjin University, China. E-mail address: 961295@tju.edu.cn (Yukun Zhang); corresponding author at McDonald Institute for Archaeological Research, Department of Archaeology,  University of Cambridge, UK. E-mail address: erc62@cam.ac.uk (Enrico R. Crema).
 
 
-# 0. Prepare the packages and file paths
+# 1. Prepare the packages and file paths
 install.packages("usethis")
 library(usethis)
 usethis::create_project(".")
@@ -30,7 +30,7 @@ library(sp)
 library(MuMIn)
 library(MASS)
 
-# 1. Read the objects and convert them to spatstat format ----
+# 2. Read the objects and convert them to spatstat format ----
 # The observed window
 Aohan <-read_sf(here("GIS_layers","1_1_Aohan_qgisproj.shp"))
 Aohan_owin=as.owin(Aohan$geometry)
