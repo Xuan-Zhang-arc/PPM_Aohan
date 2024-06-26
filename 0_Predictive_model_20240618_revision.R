@@ -6,22 +6,8 @@
 
 
 # 1. Prepare the packages and file paths
-install.packages("usethis")
-library(usethis)
-usethis::create_project(".")
-install.packages("here")
 library(here)
-install.packages("sf")
-install.packages("maptools")
-install.packages("spatstat")
-devtools::install_github("spatstat/spatstat.model")
-install.packages("raster")
-install.packages("terra")
-install.packages("sp")
-install.packages("MuMIn")
-install.packages("MASS")
 library(sf)
-library(maptools)
 library(spatstat)
 library(spatstat.model)
 library(raster)
@@ -78,70 +64,75 @@ AB.multitype<-superimpose(stonewall=TypeA_ppp,earthwall=TypeB_ppp)
 DEM <- mask(raster(here("GIS_layers","1_1_DEM_qgisproj.tif")), Aohan)
 res(DEM)
 # [1] 26.99211 26.99211
-elevation_im <- as.im(DEM, Aohan_owin)
+DEM_matrix <- apply(as.matrix(DEM), 2, rev)
+elevation_im <- as.im(DEM_matrix,Aohan_owin)
 class(elevation_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_1_elevation.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(elevation_im, main = NULL)
+plot(elevation_im, main = NULL, col=terrain.colors(10))
 dev.off()
 
 # 1.2 slope
-slope <- mask(raster(here("GIS_layers","1_2_slope_qgisproj.tif")), Aohan)
+slope <- mask(raster(here("GIS_layers","1_2_slope_qgisproj2.tif")), Aohan)
 res(slope)
 # [1] 26.99211 26.99211
-slope_im<-as.im(slope, Aohan_owin)
+slope_matrix <- apply(as.matrix(slope), 2, rev)
+slope_im<-as.im(slope_matrix, Aohan_owin)
 class(slope_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_2_slope.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(slope_im, main = NULL)
+plot(slope_im, main = NULL, col=terrain.colors(8))
 dev.off()
 
 # 1.3 aspect
 aspect <- mask(raster(here("GIS_layers","1_3_aspect_qgisproj.tif")), Aohan)
 res(aspect)
 # [1] 26.99211 26.99211
-north_south <- cos(aspect)*(-1)
-aspect_im <- as.im(north_south, Aohan_owin)
+aspect_rad <- aspect * (pi / 180)
+north_south <- cos(aspect_rad)*(-1)
+north_south_matrix <- apply(as.matrix(north_south), 2, rev)
+aspect_im <- as.im(north_south_matrix, Aohan_owin)
 class(aspect_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_3_aspect.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(aspect_im, main = NULL)
+plot(aspect_im, main = NULL, col=terrain.colors(4))
 dev.off()
 
 # 1.4 incoming visibility index
 visibility_in<-mask(raster(here("GIS_layers","1_4_in_vis_index_qgisproj.tif"),window=Aohan_owin), Aohan)
 res(visibility_in)
 # [1] 26.99211 26.99211
-vis_in_im <- as.im(visibility_in, Aohan_owin)
-plot(vis_in_im)
+vis_in_matrix <- apply(as.matrix(visibility_in), 2, rev)
+vis_in_im <- as.im(vis_in_matrix, Aohan_owin)
 class(vis_in_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_4_vis_in.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(vis_in_im, main = NULL)
+plot(vis_in_im, main = NULL, col=topo.colors(10))
 dev.off()
 
 # 1.5 outgoing visbility index
 visibility_out<-mask(raster(here("GIS_layers","1_5_out_vis_index_qgisproj.tif"),window=Aohan_owin), Aohan)
 res(visibility_out)
 # [1] 26.99211 26.99211
-vis_out_im <- as.im(visibility_out, Aohan_owin)
-plot(vis_out_im)
+vis_out_matrix <- apply(as.matrix(visibility_out), 2, rev)
+vis_out_im <- as.im(vis_out_matrix, Aohan_owin)
 class(vis_out_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_5_vis_out.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(vis_out_im, main = NULL)
+plot(vis_out_im, main = NULL, col=topo.colors(10))
 dev.off()
 
 # 1.6 landforms
 landforms <- mask(raster(here("GIS_layers","1_6_landforms_qgisproj_reclass.tif")), Aohan)
 res(landforms)
 # [1] 26.99211 26.99211
-landforms_im<-as.im(landforms, Aohan_owin)
+landforms_matrix <- apply(as.matrix(landforms), 2, rev)
+landforms_im<-as.im(landforms_matrix, Aohan_owin)
 landforms_recla_im <- cut(landforms_im$v, 
                           breaks = c(-Inf, 0, 1, 2, 3, Inf), 
                           labels = c("flat", "pit", "valley/footslope", "spur/slope/hollow", "peak/ridge/shoulder"), 
@@ -155,21 +146,24 @@ class(landforms_recla_im$v)
 # [1] "factor"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_6_landforms.jpg"),width = 7, height = 7, units = "in", res = 1200)
+par(mar = c(5, 4, 4, 8) + 0.1)
 plot(landforms_recla_im, main = "landforms_recla_im", 
      ribside = "bottom", 
      ribsep = 0.05, 
      ribargs = list(at = 1:5, 
 		    labels = c("flat", "pit", "valley/footslope", "spur/slope/hollow", "peak/ridge/shoulder"), 
 		    cex.axis = 0.8, 
-		    width = 1.5)) 
+		    width = 6)) 
 
 dev.off()
+
 
 # 1.7 river
 river <- mask(raster(here("GIS_layers","1_7_river_level_1_to_5_clipped_qgisproj2_distance.tif")), Aohan)
 res(river)
 # [1] 26.99211 26.99211
-river_im<-as.im(river, Aohan_owin)
+river_matrix <- apply(as.matrix(river), 2, rev)
+river_im<-as.im(river_matrix, Aohan_owin)
 class(river_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
@@ -184,7 +178,8 @@ res(soil_resample)
 # [1] 26.99211 26.99211
 class(values(soil_resample))
 # [1] "numeric"
-soil_im<-as.im(soil_resample, Aohan_owin)
+soil_resample_matrix <- apply(as.matrix(soil_resample), 2, rev)
+soil_im<-as.im(soil_resample_matrix, Aohan_owin)
 class(soil_im$v)
 # [1] "matrix" "array"
 soil_categorical <- function(x) {
@@ -203,7 +198,8 @@ geo_rock <- mask(raster(here("GIS_layers","1_9_building_rock_qgisproj_distance.t
 geo_rock_resample <- resample(geo_rock, DEM, method='bilinear')
 res(geo_rock_resample)
 # [1] 26.99211 26.99211
-geo_rock_im<-as.im(geo_rock_resample, Aohan_owin)
+geo_rock_resample_matrix <- apply(as.matrix(geo_rock_resample), 2, rev)
+geo_rock_im<-as.im(geo_rock_resample_matrix, Aohan_owin)
 class(geo_rock_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
@@ -215,7 +211,8 @@ geo_earth <- mask(raster(here("GIS_layers","1_9_building_earth_qgisproj_distance
 geo_earth_resample <- resample(geo_earth, DEM, method='bilinear')
 res(geo_earth_resample)
 # [1] 26.99211 26.99211
-geo_earth_im<-as.im(geo_earth_resample, Aohan_owin)
+geo_earth_resample_matrix <- apply(as.matrix(geo_earth_resample), 2, rev)
+geo_earth_im<-as.im(geo_earth_resample_matrix, Aohan_owin)
 class(geo_earth_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
@@ -228,7 +225,8 @@ precipitation <- mask(raster(here("GIS_layers","1_10_precipitation_clipped_qgisp
 precipitation_resample <- resample(precipitation, DEM, method='bilinear')
 res(precipitation_resample)
 # [1] 26.99211 26.99211
-precipitation_im <- as.im(precipitation_resample, Aohan_owin)
+precipitation_resample_matrix <- apply(as.matrix(precipitation_resample), 2, rev)
+precipitation_im <- as.im(precipitation_resample_matrix, Aohan_owin)
 class(precipitation_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
@@ -241,7 +239,8 @@ temperature <- mask(raster(here("GIS_layers","1_11_mean_tem_clipped_qgisproj.tif
 temperature_resample <- resample(temperature, DEM, method='bilinear')
 res(temperature_resample)
 # [1] 26.99211 26.99211
-temperature_im <- as.im(temperature_resample, Aohan_owin)
+temperature_resample_matrix <- apply(as.matrix(temperature_resample), 2, rev)
+temperature_im <- as.im(temperature_resample_matrix, Aohan_owin)
 class(temperature_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
@@ -254,173 +253,335 @@ dev.off()
 # 1) elevation: GAM 
 ppm_A_elevation<-ppm(TypeA_ppp~elevation_im)
 AICc(ppm_A_elevation)
-# [1] 17088.05
+# [1] 17108.72
+ppm_A_elevation_kres <-envelope(ppm_A_elevation,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_elevation_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_elevation_kres, main = NULL)
+dev.off()
+
 gam_A_elevation<-ppm(TypeA_ppp~s(elevation_im),use.gam=TRUE)
 AICc(gam_A_elevation)
-# [1] 16931.66
+# 
+gam_A_elevation_kres <-envelope(gam_A_elevation,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_elevation_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_elevation_kres, main = NULL)
+dev.off()
 
 # 2) slope: GAM 
 ppm_A_slope<-ppm(TypeA_ppp~slope_im)
 AICc(ppm_A_slope)
-# [1] 17406.61
+# 
+ppm_A_slope_kres <-envelope(ppm_A_slope,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_slope_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_slope_kres, main = NULL)
+dev.off()
+
 gam_A_slope<-ppm(TypeA_ppp~s(slope_im),use.gam=TRUE)
 AICc(gam_A_slope)
-# [1] 17347.26
+# 
+gam_A_slope_kres <-envelope(gam_A_slope,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_slope_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_slope_kres, main = NULL)
+dev.off()
 
 # 3) aspect: LM 
 ppm_A_aspect<-ppm(TypeA_ppp~aspect_im)
 AICc(ppm_A_aspect)
-# [1] 17519.14
+# 
+ppm_A_aspect_kres <-envelope(ppm_A_aspect,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_aspect_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_aspect_kres, main = NULL)
+dev.off()
+
 gam_A_aspect<-ppm(TypeA_ppp~s(aspect_im),use.gam=TRUE)
 AICc(gam_A_aspect)
-# [1] 17535.57
+# 
+gam_A_aspect_kres <-envelope(gam_A_aspect,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_aspect_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_aspect_kres, main = NULL)
+dev.off()
+
 
 # 4) incoming visibility index: GAM
 ppm_A_vis_in<-ppm(TypeA_ppp~vis_in_im)
 AICc(ppm_A_vis_in)
-# [1] 17140.85
+# 
+ppm_A_vis_in_kres <-envelope(ppm_A_vis_in,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_vis_in_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_vis_in_kres, main = NULL)
+dev.off()
+
 gam_A_vis_in<-ppm(TypeA_ppp~s(vis_in_im),use.gam=TRUE)
 AICc(gam_A_vis_in)
-# [1] 17032.98
+# 
+gam_A_vis_in_kres <-envelope(gam_A_vis_in,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_vis_in_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_vis_in_kres, main = NULL)
+dev.off()
 
 # 5) outgoing visibility index: GAM
 ppm_A_vis_out<-ppm(TypeA_ppp~vis_out_im)
 AICc(ppm_A_vis_out)
-# [1] 17097.26
+# 
+ppm_A_vis_out_kres <-envelope(ppm_A_vis_in,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_vis_out_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_vis_out_kres, main = NULL)
+dev.off()
+
 gam_A_vis_out<-ppm(TypeA_ppp~s(vis_out_im),use.gam=TRUE)
 AICc(gam_A_vis_out)
-# [1] 17016.48
+# 
+gam_A_vis_out_kres <-envelope(gam_A_vis_in,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_vis_out_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_vis_out_kres, main = NULL)
+dev.off()
 
 # 6) landforms: LM
 ppm_A_landforms<-ppm(TypeA_ppp~landforms_recla_im)
 AICc(ppm_A_landforms)
-# [1] 17415.43
+# 
 
 # 7) river: GAM 
 ppm_A_river<-ppm(TypeA_ppp~river_im)
 AICc(ppm_A_river)
-# [1] 17504.86
+# 
+ppm_A_river_kres <-envelope(ppm_A_river,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_river_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_river_kres, main = NULL)
+dev.off()
+
 gam_A_river<-ppm(TypeA_ppp~s(river_im),use.gam=TRUE)
 AICc(gam_A_river)
-# [1] 17493.21
+# 
+gam_A_river_kres <-envelope(gam_A_river,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_river_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_river_kres, main = NULL)
+dev.off()
 
 # 8) soil: LM
 ppm_A_soil<-ppm(TypeA_ppp~soil_recla_im)
 AICc(ppm_A_soil)
-# [1] 17310.82
+# 
 
 # 9) geology
 # building rock: LM
 ppm_A_geo_rock <- ppm(TypeA_ppp~geo_rock_im)
 AICc(ppm_A_geo_rock)
-# [1] 17186.43
+# 
+ppm_A_geo_rock_kres <-envelope(ppm_A_geo_rock,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_geo_rock_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_geo_rock_kres, main = NULL)
+dev.off()
+
 gam_A_geo_rock <- ppm(TypeA_ppp~s(geo_rock_im), use.gam=TRUE)
 AICc(gam_A_geo_rock)
-# [1] 17202.86
+# 
+gam_A_geo_rock_kres <-envelope(gam_A_geo_rock,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_geo_rock_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_geo_rock_kres, main = NULL)
+dev.off()
 
 # 10) modern annual precipitation: GAM 
 ppm_A_precipitation<-ppm(TypeA_ppp~precipitation_im)
 AICc(ppm_A_precipitation)
-# [1] 17026.54
+# 
+ppm_A_precipitation_kres <-envelope(ppm_A_precipitation,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_precipitation_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_precipitation_kres, main = NULL)
+dev.off()
 
 gam_A_precipitation<-ppm(TypeA_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gam_A_precipitation)
-# [1] 16938.72
+# 
+gam_A_precipitation_kres <-envelope(gam_A_precipitation,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_precipitation_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_precipitation_kres, main = NULL)
+dev.off()
 
 # 11) modern annual mean temperature: GAM 
 ppm_A_temperature<-ppm(TypeA_ppp~temperature_im)
 AICc(ppm_A_temperature)
-# [1] 17227.72
+# 
+ppm_A_temperature_kres <-envelope(ppm_A_temperature,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_temperature_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_A_temperature_kres, main = NULL)
+dev.off()
+
 gam_A_temperature<-ppm(TypeA_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gam_A_temperature)
-# [1] 17024.94
+# 
+gam_A_temperature_kres <-envelope(gam_A_temperature,fun=Kres,nsim=50,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_A_temperature_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_A_temperature_kres, main = NULL)
+dev.off()
 
 # 3.2 earth-wall sites
 # 1) elevation: LM 
 ppm_B_elevation<-ppm(TypeB_ppp~elevation_im)
 AICc(ppm_B_elevation)
-# [1] 2624.926
+# [1] 2626.153
+ppm_B_elevation_kres <-envelope(ppm_B_elevation,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_elevation_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_elevation_kres, main = NULL)
+dev.off()
+
 gam_B_elevation<-ppm(TypeB_ppp~s(elevation_im),use.gam=TRUE)
 AICc(gam_B_elevation)
-# [1] 2644.667
+# [1] 2645.894
+gam_B_elevation_kres <-envelope(gam_B_elevation,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_elevation_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_elevation_kres, main = NULL)
+dev.off()
 
 # 2) slope: LM 
 ppm_B_slope<-ppm(TypeB_ppp~slope_im)
 AICc(ppm_B_slope)
-# [1] 2633.698
+# 
+ppm_B_slope_kres <-envelope(ppm_B_slope,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_slope_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_slope_kres, main = NULL)
+dev.off()
+
 gam_B_slope<-ppm(TypeB_ppp~s(slope_im),use.gam=TRUE)
 AICc(gam_B_slope)
-# [1] 2653.439
+# 
+gam_B_slope_kres <-envelope(gam_B_slope,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_slope_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_slope_kres, main = NULL)
+dev.off()
 
 # 3) aspect: LM 
 ppm_B_aspect<-ppm(TypeB_ppp~aspect_im)
 AICc(ppm_B_aspect)
-# [1] 2634.049
+# 
+ppm_B_aspect_kres <-envelope(ppm_B_aspect,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_aspect_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_aspect_kres, main = NULL)
+dev.off()
+
 gam_B_aspect<-ppm(TypeB_ppp~s(aspect_im),use.gam=TRUE)
 AICc(gam_B_aspect)
-# [1] 2653.79
+# 
+gam_B_aspect_kres <-envelope(gam_B_aspect,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_aspect_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_aspect_kres, main = NULL)
+dev.off()
 
 # 4) incoming visibility index: LM
 ppm_B_vis_in<-ppm(TypeB_ppp~vis_in_im)
 AICc(ppm_B_vis_in)
-# [1] 2618.28
+# 
+ppm_B_vis_in_kres <-envelope(ppm_B_vis_in,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_vis_in_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_vis_in_kres, main = NULL)
+dev.off()
+
 gam_B_vis_in<-ppm(TypeB_ppp~s(vis_in_im),use.gam=TRUE)
 AICc(gam_B_vis_in)
-# [1] 2621.042
+# 
+gam_B_vis_in_kres <-envelope(gam_B_vis_in,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_vis_in_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_vis_in_kres, main = NULL)
+dev.off()
 
 # 5) outgoing visibility index: LM
 ppm_B_vis_out<-ppm(TypeB_ppp~vis_out_im)
 AICc(ppm_B_vis_out)
-# [1] 2617.355
+# 
+ppm_B_vis_out_kres <-envelope(ppm_B_vis_in,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_vis_out_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_vis_out_kres, main = NULL)
+dev.off()
+
 gam_B_vis_out<-ppm(TypeB_ppp~s(vis_out_im),use.gam=TRUE)
 AICc(gam_B_vis_out)
-# [1] 2637.096
+# 
+gam_B_vis_out_kres <-envelope(gam_B_vis_in,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_vis_out_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_vis_out_kres, main = NULL)
+dev.off()
 
 # 6) landforms: LM
 ppm_B_landforms<-ppm(TypeB_ppp~landforms_recla_im)
 AICc(ppm_B_landforms)
-# [1] 2626.582
+# 
 
 # 7) river: LM 
 ppm_B_river<-ppm(TypeB_ppp~river_im)
 AICc(ppm_B_river)
-# [1] 2624.92
+# 
+ppm_B_river_kres <-envelope(ppm_B_river,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_river_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_river_kres, main = NULL)
+dev.off()
+
 gam_B_river<-ppm(TypeB_ppp~s(river_im),use.gam=TRUE)
 AICc(gam_B_river)
-# [1] 2644.661
+# 
+gam_B_river_kres <-envelope(gam_B_river,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_river_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_river_kres, main = NULL)
+dev.off()
 
 # 8) soil: LM
 ppm_B_soil<-ppm(TypeB_ppp~soil_recla_im)
 AICc(ppm_B_soil)
-# [1] 2577.265
+# 
 
 # 9) geology
 # building earth: LM
 ppm_B_geo_earth <- ppm(TypeB_ppp~geo_earth_im)
 AICc(ppm_B_geo_earth)
-# [1] 2632.412
+# 
+ppm_B_geo_earth_kres <-envelope(ppm_B_geo_earth,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_geo_earth_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_geo_earth_kres, main = NULL)
+dev.off()
+
 gam_B_geo_earth <- ppm(TypeB_ppp~s(geo_earth_im), use.gam=TRUE)
 AICc(gam_B_geo_earth)
-# [1] 2652.153
+# 
+gam_B_geo_earth_kres <-envelope(gam_B_geo_earth,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_geo_earth_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_geo_earth_kres, main = NULL)
+dev.off()
 
 # 10) modern annual precipitation: LM 
 ppm_B_precipitation<-ppm(TypeB_ppp~precipitation_im)
 AICc(ppm_B_precipitation)
-# [1] 2581.457
+# 
+ppm_B_precipitation_kres <-envelope(ppm_B_precipitation,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_precipitation_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_precipitation_kres, main = NULL)
+dev.off()
+
 gam_B_precipitation<-ppm(TypeB_ppp~s(precipitation_im),use.gam=TRUE)
 AICc(gam_B_precipitation)
-# [1] 2601.198
+# 
+gam_B_precipitation_kres <-envelope(gam_B_precipitation,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_precipitation_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_precipitation_kres, main = NULL)
+dev.off()
 
 # 11) modern annual mean temperature: LM 
 ppm_B_temperature<-ppm(TypeB_ppp~temperature_im)
 AICc(ppm_B_temperature)
-# [1] 2627.685
+# 
+ppm_B_temperature_kres <-envelope(ppm_B_temperature,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_temperature_ppm.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(ppm_B_temperature_kres, main = NULL)
+dev.off()
+
 gam_B_temperature<-ppm(TypeB_ppp~s(temperature_im),use.gam=TRUE)
 AICc(gam_B_temperature)
-# [1] 2647.426
+# 
+gam_B_temperature_kres <-envelope(gam_B_temperature,fun=Kres,nsim=500,correction='best')
+jpeg(here("Output", "2_first_order_interactions", "kres_B_temperature_gam.jpg"),width = 7, height = 7, units = "in", res = 1000)
+plot(gam_B_temperature_kres, main = NULL)
+dev.off()
 
 
-# 4. Relative Variable Importance  
+# 4. Relative Variable Importance (This section may take 10 or more hours.)   
 # 4.1 stone-wall sites
 global.model.A<-ppm(TypeA_ppp~s(elevation_im)+s(slope_im)+aspect_im+s(vis_in_im)+s(vis_out_im)+landforms_recla_im+s(river_im)+soil_recla_im+geo_rock_im+s(precipitation_im)+s(temperature_im), use.gam=TRUE)
 all.model.A <- dredge(global.model.A,evaluate=FALSE)
