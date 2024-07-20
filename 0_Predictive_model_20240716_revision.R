@@ -118,7 +118,7 @@ class(elevation_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_1_elevation.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(elevation_im, main = NULL, col=terrain.colors(10), axes = TRUE)
+plot(DEM, main = NULL, col=terrain.colors(12), axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 
@@ -134,7 +134,7 @@ class(slope_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_2_slope.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(slope_im, main = NULL, col=terrain.colors(8), axes = TRUE)
+plot(slope, main = NULL, col=terrain.colors(6), axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 
@@ -152,7 +152,7 @@ class(aspect_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_3_aspect.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(aspect_im, main = NULL, col=terrain.colors(4), axes = TRUE)
+plot(north_south, main = NULL, col=terrain.colors(4), axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 
@@ -167,9 +167,9 @@ vis_in_im <- as.im(vis_in_im,Aohan_owin)
 class(vis_in_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
-custom_colors <- colorRampPalette(c("grey", "green","yellow", "red"))(10)
+custom_colors <- colorRampPalette(c("white", "green","red"))(7)
 jpeg(here("Output", "1_covariates", "1_4_vis_in.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(vis_in_im, main = NULL, col=custom_colors, axes = TRUE)
+plot(visibility_in, main = NULL, col=custom_colors, axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 
@@ -184,9 +184,9 @@ vis_out_im <- as.im(vis_out_im,Aohan_owin)
 class(vis_out_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
-custom_colors <- colorRampPalette(c("grey", "yellow","orange", "red"))(10)
+custom_colors <- colorRampPalette(c("grey", "yellow","red"))(7)
 jpeg(here("Output", "1_covariates", "1_5_vis_out.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(vis_out_im, main = NULL, col=custom_colors, axes = TRUE)
+plot(visibility_out, main = NULL, col=custom_colors, axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 
@@ -210,9 +210,8 @@ landforms_recla_im <- im(factor(landforms_recla_im, levels = c("flat/pit/valley/
 class(landforms_recla_im$v)
 # [1] "factor"
 # code for Figure 4
-custom_colors <- colorRampPalette(c("light green","light yellow", "red"))(3)
 jpeg(here("Output", "1_covariates", "1_6_landforms.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(landforms_recla_im, main = NULL, col = custom_colors, axes = TRUE,
+plot(landforms_recla_im, main = NULL, col = terrain.colors(3), axes = TRUE,
      ribside = "right", 
      ribsep = 0.05, 
      ribargs = list(at = 1:3, 
@@ -235,7 +234,7 @@ class(river_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_7_river.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(river_im, main = NULL, axes = TRUE)
+plot(river, main = NULL, axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 
@@ -259,7 +258,7 @@ soil_recla_im <- eval.im(soil_categorical(soil_im))
 class(soil_recla_im$v)
 # [1] "factor"
 # code for Figure 4
-custom_colors <- colorRampPalette(c("grey", "light green"))(2)
+custom_colors <- colorRampPalette(c("light grey","#D2B48C" ))(2)
 jpeg(here("Output", "1_covariates", "1_8_soil.jpg"),width = 7, height = 7, units = "in", res = 1200)
 plot(soil_recla_im, main = NULL, col=custom_colors, axes = TRUE)
 plot(Aohan_owin, add = TRUE)
@@ -279,7 +278,7 @@ class(geo_rock_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_9_geo_rock.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(geo_rock_im, main = NULL, axes = TRUE)
+plot(geo_rock_resample, main = NULL, axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 # 1.9.2 distance to materials for constructing earth-wall sites
@@ -295,7 +294,7 @@ class(geo_earth_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
 jpeg(here("Output", "1_covariates", "1_9_geo_earth.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(geo_earth_im, main = NULL, axes = TRUE)
+plot(geo_earth_resample, main = NULL, axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 
@@ -311,9 +310,8 @@ precipitation_im <- as.im(precipitation_im,Aohan_owin)
 class(precipitation_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
-custom_colors <- colorRampPalette(c("white","yellow", "light blue"))(10)
 jpeg(here("Output", "1_covariates", "1_10_precipitation.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(precipitation_im, main = NULL, col=custom_colors, axes = TRUE)
+plot(precipitation_resample, main = NULL, col=rev(terrain.colors(10)),axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
 
@@ -329,11 +327,16 @@ temperature_im <- as.im(temperature_im,Aohan_owin)
 class(temperature_im$v)
 # [1] "matrix" "array"
 # code for Figure 4
-custom_colors <- colorRampPalette(c("white","light green","light yellow","orange"))(16)
 jpeg(here("Output", "1_covariates", "1_11_temperature.jpg"),width = 7, height = 7, units = "in", res = 1200)
-plot(temperature_im, main = NULL, col=custom_colors, axes = TRUE)
+plot(temperature_resample, main = NULL, col=terrain.colors(10), axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
+
+
+
+
+
+
 
 # 3. Function form selection: LM or GAM
 # 3.1 stone-wall sites
