@@ -1,6 +1,6 @@
 # R script
 ## article title: A comparative analyses of stone- and earth-wall settlement locations of the Lower Xiajiadian Culture in Aohan Banner, China
-## journal name: Journal of Archaeological Method and Theory
+## journal name: Archaeological and Anthropological Sciences
 ## author names: Xuan Zhang; Yukun Zhang; Lifeng Tan; Enrico R. Crema; Yanguo Tian; Ze Wang
 ## corresponding authors: corresponding author at School of Architecture, Tianjin University, China. E-mail address: 961295@tju.edu.cn (Yukun Zhang); corresponding author at McDonald Institute for Archaeological Research, Department of Archaeology,  University of Cambridge, UK. E-mail address: erc62@cam.ac.uk (Enrico R. Crema).
 
@@ -331,12 +331,6 @@ jpeg(here("Output", "1_covariates", "1_11_temperature.jpg"),width = 7, height = 
 plot(temperature_resample, main = NULL, col=terrain.colors(10), axes = TRUE)
 plot(Aohan_owin, add = TRUE)
 dev.off()
-
-
-
-
-
-
 
 # 3. Function form selection: LM or GAM
 # 3.1 stone-wall sites
