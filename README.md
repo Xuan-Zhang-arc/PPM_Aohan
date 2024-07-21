@@ -1,12 +1,12 @@
 # R script (0_Predictive_model_20240716_revision.R) & site data (for reviews only) & covariate data & output
 
-article title: A comparative analyses of stone- and earth-wall settlement locations of the Lower Xiajiadian Culture in Aohan Banner, China
+Article title: A comparative analyses of stone- and earth-wall settlement locations of the Lower Xiajiadian Culture in Aohan Banner, China
 
-journal name: Archaeological and Anthropological Sciences
+Journal name: Archaeological and Anthropological Sciences
 
-author names: Xuan Zhang; Yukun Zhang; Lifeng Tan; Enrico R. Crema; Yanguo Tian; Ze Wang
+Author names: Xuan Zhang; Yukun Zhang; Lifeng Tan; Enrico R. Crema; Yanguo Tian; Ze Wang
 
-corresponding author: corresponding author at School of Architecture, Tianjin University, China. E-mail address: 961295@tju.edu.cn (Yukun Zhang); 
+Corresponding authors: corresponding author at School of Architecture, Tianjin University, China. E-mail address: 961295@tju.edu.cn (Yukun Zhang); corresponding author at McDonald Institute for Archaeological Research, Department of Archaeology, University of Cambridge, UK. E-mail address: erc62@cam.ac.uk (Enrico R. Crema).
 
 The R script (0_Predictive_model_20240716_revision.R) contains:
 1. Prepare the packages and file paths;
