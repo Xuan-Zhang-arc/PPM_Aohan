@@ -1,6 +1,6 @@
 # R script (0_Predictive_model_20241021_revision.R) & site data (for reviews only) & covariate data & output
 
-Article title: A comparative analyses of stone- and earth-wall settlement locations of the Lower Xiajiadian Culture in Aohan Banner, China
+Article title: A comparative analysis of stone- and earth-wall settlement locations of the Lower Xiajiadian Culture in Aohan Banner, China
 
 Journal name: Archaeological and Anthropological Sciences
 
